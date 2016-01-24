@@ -1,28 +1,105 @@
 import numpy as np
-import Computer
-
-MAIN_BEGIN = 0
-ADD_DISPLAY_BEGIN = 50
 
 
+class ComputerDoubleMemory(object):
 
-def main():
+    def __init__(self,  stack, instructions, stack_pointer=-1,
+                 program_counter=0):
+        """ Initialization of the computer simulator using independent stack
+        and instructions memories
 
-    # Instruction memory of maximum 100 characters
-    code = Computer.Computer(np.array([None]*100), np.array([None]*100))
-    # Insert instructions for ADD_DISPLAY function starting from address
-    # ADD_DISPLAY_BEGIN
-    code.set_address(ADD_DISPLAY_BEGIN).insert("ADD").insert("PRN").\
-        insert("RET")
-    # Insert Instructions for MAIN function starting from address MAIN_BEGIN
-    code.set_address(MAIN_BEGIN).insert("PUSH", 4)  # This is the return
-    # address when execution returns from ADD_DISPLAY
-    code.insert("PUSH", 1).insert("PUSH", 2).insert("CALL", ADD_DISPLAY_BEGIN)
-    # Next instruction is in address 4:
-    code.insert("PUSH", 777).insert("PRN").insert("STOP")
-    # Set the Program Counter to the MAIN function and execute
-    code.set_address(MAIN_BEGIN).execute()
+        :param stack: stack memory
+        :param instructions: instructions memory
+        :param stack_pointer: pointer managing values in the stack memory
+        :param program_counter: counter managing instructions in the
+        instructions memory
+        """
+        self.stack_pointer = stack_pointer
+        self.program_counter = program_counter
+        self.stack = stack
+        self.instructions = instructions
+        self.instruction_mapping = {
+            "ADD": self.add,
+            "CALL": self.call,
+            "PRN": self.prn,
+            "PUSH": self.push,
+            "RET": self.ret,
+            "STOP": self.stop
+        }
+        self.running = True
 
-    return 0
+    def set_address(self, address):
+        """ Set Program Counter to this address
 
-main()
+        :param address: address in the stack
+        """
+        self.program_counter = address
+        return self
+
+    def insert(self, instruction_name, instruction_arg=None):
+        """ Insert instruction in the stack
+
+        :param instruction_name: name of the instruction
+        :param instruction_arg: argument of the respective instruction
+        """
+        instruction = np.array([self.instruction_mapping[instruction_name],
+                         instruction_arg])
+        self.instructions[self.program_counter] = instruction
+        self.program_counter += 1
+        return self
+
+    def execute(self):
+        """ Execute all instructions in the stack """
+        while self.running:
+            instruction_pair = self.instructions[self.program_counter]
+            instruction_method = instruction_pair[0]
+            instruction_arg = instruction_pair[1]
+            if instruction_arg is None:
+                instruction_method()
+            else:
+                instruction_method(instruction_arg)
+
+    def add(self):
+        """ Pop two upper stack values, add them together and push the result
+        on top of the stack """
+        addend1 = self.pop()
+        addend2 = self.pop()
+        self.push(addend1+addend2)
+
+    def call(self, address):
+        """ Set Program Counter to this address
+
+        :param address: address in the stack
+        """
+        self.program_counter = address
+
+    def pop(self):
+        """ Pop the top stack value """
+        arg = self.stack[self.stack_pointer]
+        self.stack[self.stack_pointer] = None
+        self.stack_pointer -= 1
+        return arg
+
+    def prn(self):
+        """ Pop the top stack value and print it out """
+        top_stack_arg = self.pop()
+        print top_stack_arg
+        self.program_counter += 1
+
+    def push(self, arg):
+        """ Push 'arg' to the top of the stack
+
+        :param arg: numerical argument
+        """
+        self.stack_pointer += 1
+        self.stack[self.stack_pointer] = arg
+        self.program_counter += 1
+
+    def ret(self):
+        """ Pop address from stack and set PC to this address """
+        address = self.pop()
+        self.program_counter = address
+
+    def stop(self):
+        """ Exit program """
+        self.running = False
