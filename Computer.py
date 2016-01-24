@@ -3,8 +3,7 @@ import numpy as np
 
 class Computer(object):
 
-    def __init__(self,  stack, instructions, stack_pointer=0,
-                 program_counter=0):
+    def __init__(self,  stack, stack_pointer=0, program_counter=0):
         self.stack_pointer = stack_pointer
         self.program_counter = program_counter
         self.stack = stack
