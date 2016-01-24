@@ -1,19 +1,23 @@
 import numpy as np
 
 
-class Computer(object):
+class ComputerDoubleMemory(object):
 
-    def __init__(self,  stack, stack_pointer=0, program_counter=0):
-        """ Initialization of the computer simulator using a single stack
-        memory
+    def __init__(self,  stack, instructions, stack_pointer=-1,
+                 program_counter=0):
+        """ Initialization of the computer simulator using independent stack
+        and instructions memories
 
         :param stack: stack memory
-        :param stack_pointer: pointer managing values in the stack
-        :param program_counter: counter managing instructions in the stack
+        :param instructions: instructions memory
+        :param stack_pointer: pointer managing values in the stack memory
+        :param program_counter: counter managing instructions in the
+        instructions memory
         """
         self.stack_pointer = stack_pointer
         self.program_counter = program_counter
         self.stack = stack
+        self.instructions = instructions
         self.instruction_mapping = {
             "ADD": self.add,
             "CALL": self.call,
@@ -30,8 +34,6 @@ class Computer(object):
         :param address: address in the stack
         """
         self.program_counter = address
-        if self.program_counter > self.stack_pointer:
-            self.stack_pointer = self.program_counter
         return self
 
     def insert(self, instruction_name, instruction_arg=None):
@@ -42,16 +44,14 @@ class Computer(object):
         """
         instruction = np.array([self.instruction_mapping[instruction_name],
                          instruction_arg])
-        self.stack[self.program_counter] = instruction
+        self.instructions[self.program_counter] = instruction
         self.program_counter += 1
-        if self.program_counter > self.stack_pointer:
-            self.stack_pointer = self.program_counter
         return self
 
     def execute(self):
         """ Execute all instructions in the stack """
         while self.running:
-            instruction_pair = self.stack[self.program_counter]
+            instruction_pair = self.instructions[self.program_counter]
             instruction_method = instruction_pair[0]
             instruction_arg = instruction_pair[1]
             if instruction_arg is None:
@@ -82,8 +82,8 @@ class Computer(object):
 
     def prn(self):
         """ Pop the top stack value and print it out """
-        top_stack_value = self.pop()
-        print top_stack_value
+        top_stack_arg = self.pop()
+        print top_stack_arg
         self.program_counter += 1
 
     def push(self, arg):
