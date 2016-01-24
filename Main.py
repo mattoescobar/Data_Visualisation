@@ -6,7 +6,7 @@ ADD_DISPLAY_BEGIN = 50
 
 
 def main():
-    """ Computer simulator interface """
+
     # Instruction memory of maximum 100 characters
     code = Computer.Computer(np.array([None]*100))
     # Insert instructions for ADD_DISPLAY function starting from address
