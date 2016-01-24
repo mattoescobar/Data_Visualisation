@@ -3,15 +3,11 @@ import numpy as np
 
 class Computer(object):
 
-    counter = 0
-    blabla = 1
-
-    def __init__(self,  stack, instructions, stack_pointer=-1,
+    def __init__(self,  stack, instructions, stack_pointer=0,
                  program_counter=0):
         self.stack_pointer = stack_pointer
         self.program_counter = program_counter
         self.stack = stack
-        self.instructions = instructions
         self.instruction_mapping = {
             "ADD": self.add,
             "CALL": self.call,
@@ -24,18 +20,22 @@ class Computer(object):
 
     def set_address(self, address):
         self.program_counter = address
+        if self.program_counter > self.stack_pointer:
+            self.stack_pointer = self.program_counter
         return self
 
     def insert(self, instruction_name, instruction_arg=None):
         inst = np.array([self.instruction_mapping[instruction_name],
                          instruction_arg])
-        self.instructions[self.program_counter] = inst
+        self.stack[self.program_counter] = inst
         self.program_counter += 1
+        if self.program_counter > self.stack_pointer:
+            self.stack_pointer = self.program_counter
         return self
 
     def execute(self):
         while self.running:
-            instruction_pair = self.instructions[self.program_counter]
+            instruction_pair = self.stack[self.program_counter]
             instruction_method = instruction_pair[0]
             instruction_arg = instruction_pair[1]
             if instruction_arg is None:
