@@ -1,2 +1,2 @@
 # Reactive
-Programming assignment 
+Programming assignment : Computer Simulator
