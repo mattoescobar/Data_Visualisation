@@ -19,5 +19,30 @@ The following approaches are represented, respectively, by the .py sets describe
 
 Main.py / Computer.py
 
+```python
+import Computer
+
+def main()
+   
+  code = Computer.Computer(np.array([None]*100))
+  code.insertinstruction(instruction_name, instruction_arg)
+  ...
+  code.execute()
+  
+main()
+```
+
 MainDoubleMemory.py / ComputerDoubleMemory.py
 
+```python
+import ComputerDoubleMemory
+
+def main()
+   
+  code = ComputerDoubleMemory.ComputerDoubleMemory(np.array([None]*100), np.array([None]*100))
+  code.insertinstruction(instruction_name, instruction_arg)
+  ...
+  code.execute()
+  
+main()
+```
