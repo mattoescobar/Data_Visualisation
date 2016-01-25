@@ -19,5 +19,5 @@ The following approaches are represented, respectively, by the .py sets describe
 
 Main.py / Computer.py
 
-MainDoublemMemory.py / ComputerDoubleMemory.py
+MainDoubleMemory.py / ComputerDoubleMemory.py
 
