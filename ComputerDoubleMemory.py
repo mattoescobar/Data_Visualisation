@@ -43,7 +43,7 @@ class ComputerDoubleMemory(object):
         :param instruction_arg: argument of the respective instruction
         """
         instruction = np.array([self.instruction_mapping[instruction_name],
-                         instruction_arg])
+                                instruction_arg])
         self.instructions[self.program_counter] = instruction
         self.program_counter += 1
         return self
