@@ -29,7 +29,7 @@ class GTM(object):
         x = np.ravel(x)
         x = 2*x - max(x)
         y = np.ravel(y)
-        y = 2*y - max(y)
+        y = 3*y - max(y)
         rectangular_lattice = np.array([x, y])
         return rectangular_lattice
 
