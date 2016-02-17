@@ -2,6 +2,7 @@ from __builtin__ import staticmethod
 
 import numpy as np
 import scipy as sp
+from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import normalize
@@ -46,11 +47,7 @@ class GTM(object):
         :return: basis_functions_matrix: matrix of basis functions output
         values
         """
-        distance = np.dot(np.transpose(z), mu)
-        z2 = np.sum(z * z, 0, keepdims=True)
-        mu2 = np.sum(mu * mu, 0, keepdims=True)
-        distance = np.dot(np.transpose(z2), np.ones((1, mu.shape[1]))) + \
-            np.dot(np.ones((z.shape[1], 1)), mu2) - 2 * distance
+        distance = cdist(np.transpose(z), np.transpose(mu), 'sqeuclidean')
         basis_functions_matrix = np.exp((-1/(2 * sigma ** 2)) * distance)
         basis_functions_matrix = np.concatenate((basis_functions_matrix,
                                                  np.ones((z.shape[1], 1))), 1)
@@ -71,15 +68,21 @@ class GTM(object):
         eigenvector = np.dot(pca.components_[:, 0:z.shape[0]],
                              np.diag(np.sqrt(pca.explained_variance_
                                              [0:z.shape[0]])))
-        # Normalized latent distribution and weight matrix calculation
+        # Normalized latent distribution and weight matrix initialization
         z_norm = normalize(z)
         lhs = basis_functions_matrix
         rhs = np.dot(np.transpose(z_norm), np.transpose(eigenvector))
         w = np.linalg.lstsq(lhs, rhs)[0]
         w[-1, :] = np.mean(pca_input_data, 0)
-        # Calculation of beta
-
-        return w
+        # Beta initialization
+        beta_matrix = np.dot(basis_functions_matrix, w)
+        inter_distance = cdist(beta_matrix, beta_matrix, 'sqeuclidean')
+        np.fill_diagonal(inter_distance, "inf")
+        meanNN = np.mean(np.min(inter_distance))
+        beta = 2/meanNN
+        if z.shape[0] < self.input_data.shape[1]:
+            beta = min(beta, 1/pca.explained_variance_[z.shape[0]+1])
+        return w, beta
 
     def gtm_initialization(self):
         """ Generation of GTM components used with a 2D latent space """
@@ -97,13 +100,13 @@ class GTM(object):
         fi = self.gtm_gaussian_basis_functions(z, mu, sigma)
         # Generate an initial set of weights
         # [W, beta] = gtm_pci()
-        w = self.gtm_pc_initialization(z, fi)
+        w, beta = self.gtm_pc_initialization(z, fi)
         print np.var(w, 0)
         print np.max(w[0:-1, :], 0)
-        return z, mu, fi, w
+        return z, mu, fi, w, beta
 
 test = GTM()
 # test.input_data = np.transpose(np.array([np.linspace(1, 100, 100),
 #                                          np.linspace(2, 101, 100),
 #                                          np.linspace(3, 102, 100)]))
-[z3, mu3, fi2, w2] = test.gtm_initialization()
+[z3, mu3, fi2, w2, beta2] = test.gtm_initialization()
