@@ -10,7 +10,7 @@ from sklearn.preprocessing import normalize
 
 class GTM(object):
     def __init__(self, input_data=sp.rand(100, 50), rbf_number=25, rbf_width=1,
-                 regularization=1, latent_space_size=100):
+                 regularization=1, latent_space_size=100, iterations=100):
         """ Initialization of the GTM procedure
 
         :param input_data: data to be visualized, where rows are samples and
@@ -21,6 +21,7 @@ class GTM(object):
         self.rbf_width = rbf_width
         self.regularization = regularization
         self.latent_space_size = latent_space_size
+        self.iterations = iterations
 
     @staticmethod
     def gtm_rectangular(dimension):
@@ -63,7 +64,8 @@ class GTM(object):
         """
         # Calculation of principal components and their explained variance
         pca_input_data = scale(self.input_data)
-        pca = PCA().fit(pca_input_data)
+        pca = PCA()
+        pca.fit(pca_input_data)
         # Eigenvectors scaled by their respective eigenvalues
         eigenvector = np.dot(pca.components_[:, 0:z.shape[0]],
                              np.diag(np.sqrt(pca.explained_variance_
@@ -77,9 +79,9 @@ class GTM(object):
         # Beta initialization
         beta_matrix = np.dot(basis_functions_matrix, w)
         inter_distance = cdist(beta_matrix, beta_matrix, 'sqeuclidean')
-        np.fill_diagonal(inter_distance, "inf")
-        meanNN = np.mean(np.min(inter_distance))
-        beta = 2/meanNN
+        np.fill_diagonal(inter_distance, np.inf)
+        mean_nearest_neighbor = np.mean(np.min(inter_distance))
+        beta = 2/mean_nearest_neighbor
         if z.shape[0] < self.input_data.shape[1]:
             beta = min(beta, 1/pca.explained_variance_[z.shape[0]+1])
         return w, beta
@@ -105,8 +107,15 @@ class GTM(object):
         print np.max(w[0:-1, :], 0)
         return z, mu, fi, w, beta
 
+    def gtm_training(self):
+        [z, mu, fi, w, beta] = self.gtm_initialization()
+
+        return None
+
+
 test = GTM()
 # test.input_data = np.transpose(np.array([np.linspace(1, 100, 100),
 #                                          np.linspace(2, 101, 100),
 #                                          np.linspace(3, 102, 100)]))
 [z3, mu3, fi2, w2, beta2] = test.gtm_initialization()
+
