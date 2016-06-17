@@ -6,12 +6,13 @@ from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 from sklearn.preprocessing import normalize
+import scipy.io as sio
 
 
 class GTM(object):
     def __init__(self, input_data=sp.rand(100, 3), rbf_number=25,
                  rbf_width=1, regularization=1, latent_space_size=3600,
-                 iterations=200):
+                 iterations=100):
         """ Initialization of the GTM procedure
         :param input_data: data to be visualized, where rows are samples and columns are features
         :param rbf_number: number of radial basis functions
@@ -30,6 +31,7 @@ class GTM(object):
         self.fi = None
         self.gtm_distance = np.zeros((self.latent_space_size, self.input_data.shape[0]))
         self.gtm_responsibility = np.zeros((self.latent_space_size, self.input_data.shape[0]))
+        self.centered_input_data = scale(self.input_data)
 
     @staticmethod
     def gtm_rectangular(dimension):
@@ -62,18 +64,26 @@ class GTM(object):
         :return: beta: Initial scalar value of the inverse variance common to all components of the mixture
         """
         # Calculation of principal components and their explained variance
-        pca_input_data = scale(self.input_data)
         pca = PCA()
-        pca.fit(pca_input_data)
+        pca.fit(self.centered_input_data)
         # Eigenvectors scaled by their respective eigenvalues
-        eigenvector = np.dot(pca.components_[:, 0:self.z.shape[0]], np.diag(np.sqrt(pca.explained_variance_
-                                                                                    [0:self.z.shape[0]])))
+        [eigenvalues, eigenvector] = np.linalg.eig(pca.get_covariance())
+        idx = np.argsort(eigenvalues)[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvector = eigenvector[:, idx]
+        eigenvector_scaled = np.dot(eigenvector[:, 0:self.z.shape[0]], np.diag(np.sqrt(eigenvalues
+                                                                                       [0:self.z.shape[0]])))
         # Normalized latent distribution and weight matrix initialization
-        z_norm = normalize(self.z)
+        z_norm = np.dot(np.diag(1/np.std(self.z, axis=1)), self.z - np.dot(np.diag(np.mean(self.z, axis=1)),
+                                                                           np.ones(self.z.shape)))
+        eigenvector_scaled[:, 1] = - eigenvector_scaled[:, 1]
         lhs = self.fi
-        rhs = np.dot(np.transpose(z_norm), np.transpose(eigenvector))
+        rhs = np.dot(np.transpose(z_norm), np.transpose(eigenvector_scaled))
         w = np.linalg.lstsq(lhs, rhs)[0]
-        w[-1, :] = np.mean(pca_input_data, 0)
+        w[-1, :] = np.mean(self.centered_input_data, 0)
+        rhs2 = np.linalg.pinv(rhs)
+        w2 = np.dot(np.transpose(lhs), np.transpose(np.linalg.pinv(rhs)))
+
         # Beta initialization
         beta_matrix = np.dot(self.fi, w)
         inter_distance = cdist(beta_matrix, beta_matrix, 'sqeuclidean')
@@ -92,12 +102,14 @@ class GTM(object):
         # Create GTM latent space grid vectors
         latent_space_dimension = np.sqrt(self.latent_space_size)
         self.z = self.gtm_rectangular(latent_space_dimension)
+        self.z = self.z[::-1, ::-1]
         # Create GTM latent rbf grid vectors
         rbf_dimension = np.sqrt(self.rbf_number)
         mu = self.gtm_rectangular(rbf_dimension)
         mu = mu * rbf_dimension / (rbf_dimension - 1)
+        mu = mu[::-1, ::-1]
         # Calculate the spread of the basis functions
-        sigma = self.rbf_width * (mu[0, 1] - mu[0, 0])
+        sigma = self.rbf_width * np.abs(mu[1, 0] - mu[1, 1])
         # Calculate the activations of the hidden unit when fed the latent variable samples
         self.fi = self.gtm_gaussian_basis_functions(mu, sigma)
         # Generate an initial set of weights [W, beta]
@@ -109,6 +121,7 @@ class GTM(object):
         :param beta: scalar value of the inverse variance common to all components of the mixture
         :return: log_likelihood: log likelihood of data under a gaussian mixture
         """
+
         self.gtm_responsibility = np.exp((-beta / 2) * self.gtm_distance)
         responsibility_sum = np.sum(self.gtm_responsibility, 0)
         self.gtm_responsibility = self.gtm_responsibility / np.transpose(responsibility_sum[:, None])
@@ -124,7 +137,11 @@ class GTM(object):
         """
         [w, beta] = self.gtm_initialization()
         # Calculate Initial Distances
-        self.gtm_distance = cdist(np.dot(self.fi, w), self.input_data, 'sqeuclidean')
+        self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
+        # dist_corr = np.minimum((self.gtm_distance.max(axis=0) - self.gtm_distance.min(axis=0))/2,
+        #                        self.gtm_distance.max(axis=0)+700*2/beta)
+        # for i in xrange(0, self.gtm_distance.shape[1]):
+        #     self.gtm_distance[:, i] = self.gtm_distance[:, i] - dist_corr[i]
         # Training loop
         log_likelihood_evol = np.zeros((self.iterations, 1))
         for i in xrange(0, self.iterations):
@@ -139,8 +156,8 @@ class GTM(object):
             maximization_matrix = np.dot(intermediate_matrix, self.fi) + lbda / beta
             inv_maximization_matrix = np.linalg.pinv(maximization_matrix)
             w = np.dot(inv_maximization_matrix, np.dot(np.transpose(self.fi), np.dot(self.gtm_responsibility,
-                                                                                     self.input_data)))
-            self.gtm_distance = cdist(np.dot(self.fi, w), self.input_data, 'sqeuclidean')
+                                                                                     self.centered_input_data)))
+            self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
             input_data_size = self.input_data.shape[0] * self.input_data.shape[1]
             beta = input_data_size / np.sum(self.gtm_distance * self.gtm_responsibility)
         return w, beta, log_likelihood_evol
@@ -150,7 +167,7 @@ class GTM(object):
         :param w: optimal weight matrix
         :param beta: optimal scalar value of the inverse variance common to all components of the mixture
         """
-        self.gtm_distance = cdist(np.dot(self.fi, w), self.input_data, 'sqeuclidean')
+        self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
         self.gtm_responsibilities(beta)
         means = np.dot(np.transpose(self.gtm_responsibility), np.transpose(self.z))
         return means
@@ -159,15 +176,13 @@ class GTM(object):
         """ Find mode probability density values for each sample in the latent space
         :param w: optimal weight matrix
         """
-        self.gtm_distance = cdist(np.dot(self.fi, w), self.input_data, 'sqeuclidean')
+        self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
         min_idx = np.argmin(self.gtm_distance, 0)
         modes = np.transpose(self.z)[min_idx, :]
         return modes
 
     def gtm_pdf(self):
-        """  Plot GTM's probability distribution in the form of a heat map for each sample in the latent space
-
-        """
+        """  Plot GTM's probability distribution in the form of a heat map for each sample in the latent space """
         lat_dim = np.sqrt(self.latent_space_size)
         plt.pcolor(np.reshape(self.z[0, :], (lat_dim, lat_dim)), np.reshape(self.z[1, :], (lat_dim, lat_dim)),
                    np.reshape(np.sum(self.gtm_responsibility, 1), (lat_dim, lat_dim)), cmap='magma', vmin=0, vmax=1)
@@ -177,6 +192,7 @@ class GTM(object):
         """ Calculate the similarity matrix given all samples used for GTM map training
         :return: similarity_matrix: Matrix assessing the similarity between samples used for GTM map training
         """
+        print "Calculating similarity matrix..."
         # Find one tenth of the highest and lowest probability distribution values for each sample in the latent space
         sim_size = int(round(self.latent_space_size/10))
         responsibility_indexes = np.zeros((sim_size * 2, self.input_data.shape[0]))
@@ -197,7 +213,8 @@ class GTM(object):
         x = np.ravel(x)
         y = np.ravel(y)
         sim_lat = np.array([x, y])
-        plt.pcolor(np.reshape(sim_lat[0, :], (self.input_data.shape[0], self.input_data.shape[0])),
+        print "Plotting color mesh image..."
+        plt.pcolormesh(np.reshape(sim_lat[0, :], (self.input_data.shape[0], self.input_data.shape[0])),
                    np.reshape(sim_lat[1, :], (self.input_data.shape[0], self.input_data.shape[0])), similarity_matrix,
                    cmap='magma', vmin=0, vmax=1)
         plt.colorbar()
