@@ -76,7 +76,7 @@ class GTM(object):
         # Normalized latent distribution and weight matrix initialization
         z_norm = np.dot(np.diag(1/np.std(self.z, axis=1)), self.z - np.dot(np.diag(np.mean(self.z, axis=1)),
                                                                            np.ones(self.z.shape)))
-        eigenvector_scaled[:, 1] = - eigenvector_scaled[:, 1]
+        # eigenvector_scaled[:, 1] = - eigenvector_scaled[:, 1]
         lhs = self.fi
         rhs = np.dot(np.transpose(z_norm), np.transpose(eigenvector_scaled))
         w = np.linalg.lstsq(lhs, rhs)[0]
@@ -122,11 +122,15 @@ class GTM(object):
         :return: log_likelihood: log likelihood of data under a gaussian mixture
         """
 
+        dist_corr = np.minimum((self.gtm_distance.max(axis=0) + self.gtm_distance.min(axis=0))/2,
+                               self.gtm_distance.min(axis=0)+(700*2/beta))
+        for i in xrange(0, self.gtm_distance.shape[1]):
+            self.gtm_distance[:, i] = self.gtm_distance[:, i] - dist_corr[i]
         self.gtm_responsibility = np.exp((-beta / 2) * self.gtm_distance)
         responsibility_sum = np.sum(self.gtm_responsibility, 0)
         self.gtm_responsibility = self.gtm_responsibility / np.transpose(responsibility_sum[:, None])
-        log_likelihood = np.sum(np.log(responsibility_sum)) + self.gtm_responsibility.shape[1] * \
-            ((self.input_data.shape[1] / 2) * np.log(beta / (2 * np.pi)) - np.log(self.gtm_responsibility.shape[0]))
+        log_likelihood = np.sum(np.log(responsibility_sum)) + self.gtm_distance.shape[1] * \
+            ((self.input_data.shape[1] / 2) * np.log(beta / (2 * np.pi)) - np.log(self.gtm_distance.shape[0]))
         return log_likelihood
 
     def gtm_training(self):
@@ -138,10 +142,6 @@ class GTM(object):
         [w, beta] = self.gtm_initialization()
         # Calculate Initial Distances
         self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
-        # dist_corr = np.minimum((self.gtm_distance.max(axis=0) - self.gtm_distance.min(axis=0))/2,
-        #                        self.gtm_distance.max(axis=0)+700*2/beta)
-        # for i in xrange(0, self.gtm_distance.shape[1]):
-        #     self.gtm_distance[:, i] = self.gtm_distance[:, i] - dist_corr[i]
         # Training loop
         log_likelihood_evol = np.zeros((self.iterations, 1))
         for i in xrange(0, self.iterations):
@@ -159,6 +159,7 @@ class GTM(object):
                                                                                      self.centered_input_data)))
             self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
             input_data_size = self.input_data.shape[0] * self.input_data.shape[1]
+            termc = np.sum(self.gtm_distance * self.gtm_responsibility)
             beta = input_data_size / np.sum(self.gtm_distance * self.gtm_responsibility)
         return w, beta, log_likelihood_evol
 
