@@ -32,6 +32,7 @@ class GTM(object):
         self.gtm_distance = np.zeros((self.latent_space_size, self.input_data.shape[0]))
         self.gtm_responsibility = np.zeros((self.latent_space_size, self.input_data.shape[0]))
         self.centered_input_data = scale(self.input_data)
+        self.input_reconstructed = np.zeros((self.latent_space_size, self.input_data.shape[1], iterations))
 
     @staticmethod
     def gtm_rectangular(dimension):
@@ -129,8 +130,8 @@ class GTM(object):
         self.gtm_responsibility = np.exp((-beta / 2) * self.gtm_distance)
         responsibility_sum = np.sum(self.gtm_responsibility, 0)
         self.gtm_responsibility = self.gtm_responsibility / np.transpose(responsibility_sum[:, None])
-        log_likelihood = np.sum(np.log(responsibility_sum)) + self.gtm_distance.shape[1] * \
-            ((self.input_data.shape[1] / 2) * np.log(beta / (2 * np.pi)) - np.log(self.gtm_distance.shape[0]))
+        log_likelihood = np.sum(np.log(responsibility_sum) + dist_corr * (-beta/2)) + self.gtm_distance.shape[1] * \
+            ((self.input_data.shape[1] / 2.) * np.log(beta / (2 * np.pi)) - np.log(self.gtm_distance.shape[0]))
         return log_likelihood
 
     def gtm_training(self):
@@ -151,7 +152,7 @@ class GTM(object):
             # Printing diagnostic info
             print "Cycle: %d\t log likelihood: %f\t Beta: %f\n " % (i, float(log_likelihood), beta)
             # Calculate matrix to be inverted
-            lbda = self.regularization * np.ones((self.fi.shape[1], self.fi.shape[1]))
+            lbda = self.regularization * np.eye(self.fi.shape[1], self.fi.shape[1])
             intermediate_matrix = np.dot(np.transpose(self.fi), np.diag(np.sum(self.gtm_responsibility, 1)))
             maximization_matrix = np.dot(intermediate_matrix, self.fi) + lbda / beta
             inv_maximization_matrix = np.linalg.pinv(maximization_matrix)
@@ -159,8 +160,8 @@ class GTM(object):
                                                                                      self.centered_input_data)))
             self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
             input_data_size = self.input_data.shape[0] * self.input_data.shape[1]
-            termc = np.sum(self.gtm_distance * self.gtm_responsibility)
             beta = input_data_size / np.sum(self.gtm_distance * self.gtm_responsibility)
+            self.input_reconstructed[:, :, i] = np.dot(self.fi, w)
         return w, beta, log_likelihood_evol
 
     def gtm_mean(self, w, beta):
