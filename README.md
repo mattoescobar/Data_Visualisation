@@ -4,7 +4,7 @@ Experiment with different data visualisation techniques, focusing mainly on Gene
 # Installation
 This repository contains a detailed GTM implementation from scratch in GTM.py, which relies on commonly available python packages.  
 The Self-Organising Map (SOM) implementation comes from JustGlowing's Minisom (https://github.com/JustGlowing/minisom).
-AutoEncoders (AE) implementation uses Keras' neural network capabilities.
+ AutoEncoders (AE) implementation uses Keras' neural network capabilities.
 
 # Usage
 The GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md.
