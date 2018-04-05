@@ -1,48 +1,15 @@
-# Synopsis
-Create a Computer Simulator, where given the following program:
+# Description
+Experiment with different data visualisation techniques, focusing mainly on Generative Topographic Mapping (GTM) compared to other methodologies. GTM is a probabilistic manifold based data visualsation and dimenisonality reduction tool. 
 
-```c
-function add_disp(){
-  print(add(1,2));
-}
-add_disp();
-print(777);
-```
-
-the compiler translates it into machine code, while executing the aforementioned functions.
+# Installation
+This repository contains a detailed GTM implementation from scratch in GTM.py, which relies on commonly available python packages.  
+The Self-Organising Map (SOM) implementation comes from JustGlowing's Minisom (https://github.com/JustGlowing/minisom).
+AutoEncoders (AE) implementation uses Keras' neural network capabilities.
 
 # Usage
+The GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md.
 
-Two strategies are used for solving this problem. Initially, a single stack memory is used where both instructions and values are pushed and popped to the same stack. Then, a slightly different approach was considered, with independent stack and instructions memories. 
+DR_Comparison is using a three-dimensional scattered spherical dataset divided in two categories to show the nonlinear discriminatory capabilities of GTM, SOM, and AE. The code currently used can easily be modified to support other datasets.  
 
-The following approaches are represented, respectively, by the .py sets described below:
-
-Main.py / Computer.py
-
-```python
-import Computer
-
-def main()
-   
-  code = Computer.Computer(np.array([None]*100))
-  code.insertinstruction(instruction_name, instruction_arg)
-  ...
-  code.execute()
-  
-main()
-```
-
-MainDoubleMemory.py / ComputerDoubleMemory.py
-
-```python
-import ComputerDoubleMemory
-
-def main()
-   
-  code = ComputerDoubleMemory.ComputerDoubleMemory(np.array([None]*100), np.array([None]*100))
-  code.insertinstruction(instruction_name, instruction_arg)
-  ...
-  code.execute()
-  
-main()
-```
+# License
+Refer to LICENSE file on the root of this repository.
