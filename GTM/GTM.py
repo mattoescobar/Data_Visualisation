@@ -1,4 +1,3 @@
-from __builtin__ import staticmethod
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
@@ -125,7 +124,7 @@ class GTM(object):
 
         dist_corr = np.minimum((self.gtm_distance.max(axis=0) + self.gtm_distance.min(axis=0))/2,
                                self.gtm_distance.min(axis=0)+(700*2/beta))
-        for i in xrange(0, self.gtm_distance.shape[1]):
+        for i in range(0, self.gtm_distance.shape[1]):
             self.gtm_distance[:, i] = self.gtm_distance[:, i] - dist_corr[i]
         self.gtm_responsibility = np.exp((-beta / 2) * self.gtm_distance)
         responsibility_sum = np.sum(self.gtm_responsibility, 0)
@@ -145,12 +144,12 @@ class GTM(object):
         self.gtm_distance = cdist(np.dot(self.fi, w), self.centered_input_data, 'sqeuclidean')
         # Training loop
         log_likelihood_evol = np.zeros((self.iterations, 1))
-        for i in xrange(0, self.iterations):
+        for i in range(0, self.iterations):
             # Update log likelihood and responsibilities
             log_likelihood = self.gtm_responsibilities(beta)
             log_likelihood_evol[i] = log_likelihood
             # Printing diagnostic info
-            print "Cycle: %d\t log likelihood: %f\t Beta: %f\n " % (i, float(log_likelihood), beta)
+            print("Cycle: %d\t log likelihood: %f\t Beta: %f\n " % (i, float(log_likelihood), beta))
             # Calculate matrix to be inverted
             lbda = self.regularization * np.eye(self.fi.shape[1], self.fi.shape[1])
             intermediate_matrix = np.dot(np.transpose(self.fi), np.diag(np.sum(self.gtm_responsibility, 1)))
@@ -194,18 +193,18 @@ class GTM(object):
         """ Calculate the similarity matrix given all samples used for GTM map training
         :return: similarity_matrix: Matrix assessing the similarity between samples used for GTM map training
         """
-        print "Calculating similarity matrix..."
+        print("Calculating similarity matrix...")
         # Find one tenth of the highest and lowest probability distribution values for each sample in the latent space
         sim_size = int(round(self.latent_space_size/10))
         responsibility_indexes = np.zeros((sim_size * 2, self.input_data.shape[0]))
         corr_input = np.zeros((sim_size * 2, self.input_data.shape[0]))
-        for i in xrange(0, self.input_data.shape[0]):
+        for i in range(0, self.input_data.shape[0]):
             responsibility_indexes[0:sim_size, i] = np.argpartition(self.gtm_responsibility[:, i],
                                                                     -sim_size)[-sim_size:]
             responsibility_indexes[sim_size:, i] = np.argpartition(self.gtm_responsibility[:, i], sim_size)[0:sim_size]
         responsibility_indexes = responsibility_indexes.astype(int)
         # Create correlation input matrix for similarity assessment
-        for i in xrange(0, self.input_data.shape[0]):
+        for i in range(0, self.input_data.shape[0]):
             corr_input[:, i] = self.gtm_responsibility[responsibility_indexes[:, i], i]
         # Calculate correlation between all samples and build similarity matrix
         similarity_matrix = np.corrcoef(np.transpose(corr_input))
@@ -215,7 +214,7 @@ class GTM(object):
         x = np.ravel(x)
         y = np.ravel(y)
         sim_lat = np.array([x, y])
-        print "Plotting color mesh image..."
+        print("Plotting color mesh image...")
         plt.pcolormesh(np.reshape(sim_lat[0, :], (self.input_data.shape[0], self.input_data.shape[0])),
                    np.reshape(sim_lat[1, :], (self.input_data.shape[0], self.input_data.shape[0])), similarity_matrix,
                    cmap='magma', vmin=0, vmax=1)
