@@ -3,11 +3,11 @@ Experiment with different data visualisation techniques, focusing mainly on Gene
 
 # Installation
 This repository contains a detailed GTM implementation from scratch in GTM.py, which relies on commonly available python packages.  
-The Self-Organising Map (SOM) implementation comes from JustGlowing's MiniSom. (https://github.com/JustGlowing/minisom)
+The Self-Organising Map (SOM) implementation comes from JustGlowing's MiniSom. (https://github.com/JustGlowing/minisom)<br/>
 AutoEncoders (AE) implementation uses Keras' neural network capabilities.
 
 # Usage
-The GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md.
+The GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md and this repository's wiki.
 
 DR_Comparison is using a three-dimensional scattered spherical dataset divided in two categories to show the nonlinear discriminatory capabilities of GTM, SOM, and AE. The code currently used can easily be modified to support other datasets.  
 
