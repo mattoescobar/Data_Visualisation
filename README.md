@@ -7,7 +7,9 @@ The Self-Organising Map (SOM) implementation comes from JustGlowing's MiniSom. (
 AutoEncoders (AE) implementation uses Keras' neural network capabilities.
 
 # Usage
-The GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md and this repository's wiki.
+GTM folder presents a core implementation called GTM.py where other codes use it as reference for extra features or proof of concept implementations. More details on this sub-directory README.md and this repository's wiki.
+
+TEP folder presents GTM and AE related applications to Tennessee Eastman Process (TEP) industrial chemical dataset. Please check this repository's wiki for more information on TEP.  
 
 DR_Comparison is using a three-dimensional scattered spherical dataset divided in two categories to show the nonlinear discriminatory capabilities of GTM, SOM, and AE. The code currently used can easily be modified to support other datasets.  
 
