@@ -10,7 +10,7 @@ TEP_data.py, TEP_data_midpoint.py, gtm_tep_hyperparameter_grid_search.py, gtm_te
 
 Investigating how hyperparameters behave with the TEP dataset was fundamental to corroborate the results presented in the GTM subdirectory analysis. For more details, please check this repository's wiki. 
 
-### Comparison between GTM and AE
+### Comparison between GTM and AE - DR_Comparison_TEP.py
 TEP's complex high dimensionality was used to see whether GTM would outperform AE when reducing data dimensionality to a 2D latent map. 
 ```python
 from GTM_Indexes import GTMIndexes
