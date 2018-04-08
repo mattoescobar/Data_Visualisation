@@ -18,7 +18,7 @@ Self-Organising Maps (SOM)
 This repository contains a detailed GTM implementation from scratch in GTM.py, which relies on commonly available python packages.
 
 ### Usage
-#### GTM training:
+#### GTM training - gtm_template.py:
 ```python
 # GTM Training
 test = GTM(input_data, latent_space_size=3600, rbf_number=64, regularization=0.001, rbf_width=2, iterations=100)
@@ -36,7 +36,7 @@ plt.scatter(modes2[:, 0], modes2[:, 1],  c=t)
 fig3 = plt.figure()
 test.gtm_pdf()
 ```
-For more details on different GTM applications, please check GTM sub-directory's README.md and this repository's wiki. 
+For more details on this implementation and different GTM applications with extra features, please check GTM sub-directory's README.md and this repository's wiki. 
 
 #### GTM, SOM and AE comparison - DR_Comparison.py
 DR_Comparison is using a three-dimensional scattered spherical dataset divided in two categories to show the nonlinear discriminatory capabilities of GTM, SOM, and AE. The code currently used can easily be modified to support other datasets. 
