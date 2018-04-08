@@ -61,7 +61,13 @@ print(r2_midpoint)
 print(r2_midpoint_neighbors)
 ```
 
-gtm_data.py, gtm_data_midpoint.py, gtm_hyperparameter_grid_search.py, gtm_hyperparameter_grid_search_midpoint.py, and gtm_hyperparameter_optimal.py are all supplementary files that help in the assessment of the sensitivity of each hyperparameter metric. 
+gtm_data.py, gtm_data_midpoint.py, gtm_hyperparameter_grid_search.py, gtm_hyperparameter_grid_search_midpoint.py, and gtm_hyperparameter_optimal.py are all supplementary files that help in the assessment of the sensitivity of each hyperparameter metric.
+
+These codes were used on three simulation datasets representing potential nonlinearities encountered in real datasets:
+* Spherical dataset
+* Swiss roll dataset
+* Cube dataset
+By investigating how each hyperparameter behaved, the metric with the best performance was found. For more details, please check this repository's wiki. 
 
 ### Manifold evolution - gtm_animation.py
 gtm_animation.py uses a spherical dataset as base for GTM training and then introduces animation showing how the three dimensional 
