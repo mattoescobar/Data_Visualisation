@@ -66,7 +66,7 @@ gtm_data.py, gtm_data_midpoint.py, gtm_hyperparameter_grid_search.py, gtm_hyperp
 These codes were used on three simulation datasets representing potential nonlinearities encountered in real datasets:
 * Spherical dataset
 * Swiss roll dataset
-* Cube dataset
+* Cube dataset <br/>
 By investigating how each hyperparameter behaved, the metric with the best performance was found. For more details, please check this repository's wiki. 
 
 ### Manifold evolution - gtm_animation.py
