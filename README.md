@@ -20,22 +20,23 @@ This repository contains a detailed GTM implementation from scratch in GTM.py, w
 ### Usage
 #### GTM training - gtm_template.py:
 ```python
-# GTM Training
-test = GTM(input_data, latent_space_size=3600, rbf_number=64, regularization=0.001, rbf_width=2, iterations=100)
+from GTM import GTM
+# GTM training
+test = GTMIndexes(input_data, latent_space_size=3600, rbf_number=64, regularization=0.001, rbf_width=2, iterations=10)
 [w_optimal, beta_optimal, log_likelihood_evolution] = test.gtm_training()
 
-# Mean and mode plots for all samples
-fig1 = plt.figure()
-means2 = test.gtm_mean(w_optimal, beta_optimal)
-modes2 = test.gtm_mode(w_optimal)
-plt.scatter(means2[:, 0], means2[:, 1], c=t)
-fig2 = plt.figure()
-plt.scatter(modes2[:, 0], modes2[:, 1],  c=t)
+# Hyperparameter metrics
+r2_distance = test.gtm_distance_index(w_optimal, beta_optimal, swiss_input_data)
+r2_neighbors = test.gtm_r2_neighbors(w_optimal, beta_optimal, swiss_input_data)
+r2 = test.gtm_r2(w_optimal, beta_optimal, swiss_input_test_data)
+r2_midpoint = test.gtm_r2(w_optimal, beta_optimal, swiss_midpoint)
+r2_midpoint_neighbors = test.gtm_r2(w_optimal, beta_optimal, swiss_midpoint_neighbors)
 
-# Probability distribution plots for all samples
-fig3 = plt.figure()
-test.gtm_pdf()
-```
+print(r2_distance)
+print(r2_neighbors)
+print(r2)
+print(r2_midpoint)
+print(r2_midpoint_neighbors)```
 For more details on this implementation and different GTM applications with extra features, please check GTM sub-directory's README.md and this repository's wiki. 
 
 #### GTM, SOM and AE comparison - DR_Comparison.py
