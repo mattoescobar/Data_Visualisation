@@ -1,3 +1,4 @@
+# Full GTM implementation - Hyperparameter metrics added
 from GTM import GTM
 import numpy as np
 import scipy as sp

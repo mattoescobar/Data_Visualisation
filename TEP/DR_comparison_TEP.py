@@ -1,4 +1,4 @@
-# Dimensionality reduction comparison between GTM, SOM, and AE
+# Dimensionality reduction comparison between GTM, SOM, and AE for Tennessee Eastman Process (TEP)
 
 # Importing the libraries
 from GTM_Indexes import GTMIndexes

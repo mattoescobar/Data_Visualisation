@@ -1,3 +1,4 @@
+# GTM animation template - Visualising manifold evolution
 import numpy as np
 import mayavi.mlab as mlab
 import moviepy.editor as mpy
@@ -77,7 +78,6 @@ def make_frame(t):
 animation_manifold = mpy.VideoClip(make_frame, duration=duration)
 
 # Animated Map Training
-
 fig_mpl, ax = plt.subplots(1, figsize=(4, 4), facecolor='white')
 color_vector = np.array([np.linspace(1, 1, 1000), np.linspace(2, 2, 1000)])
 

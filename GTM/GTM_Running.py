@@ -1,9 +1,10 @@
+# GTM script template - Visualising three dimensional dataset
 from GTM import GTM
 import matplotlib.pyplot as plt
 import scipy.io as sio
 import numpy as np
 
-# Importing a multi-mode data set from MATLAB
+# Importing a swiss roll data set from MATLAB
 input_structure = sio.loadmat('swiss_roll_data.mat')
 input_data = input_structure['X']
 input_data = input_data[0:1000, :]
@@ -22,7 +23,6 @@ fig1 = plt.figure()
 means2 = test.gtm_mean(w_optimal, beta_optimal)
 modes2 = test.gtm_mode(w_optimal)
 plt.scatter(means2[:, 0], means2[:, 1], c=t)
-
 fig2 = plt.figure()
 plt.scatter(modes2[:, 0], modes2[:, 1],  c=t)
 
@@ -35,7 +35,6 @@ manifold_data = np.dot(test.fi,w_optimal)
 X = manifold_data[:, 0].reshape((60, 60))
 Y = manifold_data[:, 1].reshape((60, 60))
 Z = manifold_data[:, 2].reshape((60, 60))
-
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 ax.plot_wireframe(X, Y, Z, rstride=1, cstride=1)
