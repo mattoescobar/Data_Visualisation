@@ -37,13 +37,13 @@ plt.scatter(modes2[:, 0], modes2[:, 1],  c=t)
 fig3 = plt.figure()
 test.gtm_pdf()
 ```
-For more details on this implementation and different GTM applications with extra features, please check GTM sub-directory's README.md and this repository's wiki. 
+For more details on this implementation and different GTM applications with extra features, please check GTM subdirectory's README.md and this repository's wiki. 
 
 #### GTM, SOM and AE comparison - DR_Comparison.py
 DR_Comparison is using a three-dimensional scattered spherical dataset divided in two categories to show the nonlinear discriminatory capabilities of GTM, SOM, and AE. The code currently used can easily be modified to support other datasets. 
 
 ## Tennessee Eastman Process (TEP)
-TEP folder presents GTM and AE related applications to Tennessee Eastman Process (TEP) industrial chemical dataset. Please check this repository's wiki for more information on TEP and the README.md on its correspondent sub-directory. 
+TEP folder presents GTM and AE related applications to Tennessee Eastman Process (TEP) industrial chemical dataset. Please check this repository's wiki for more information on TEP and the README.md on its correspondent subdirectory. 
 
 # License
 Refer to LICENSE file on the root of this repository.
